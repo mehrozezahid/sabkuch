@@ -10,6 +10,7 @@ import scrapy
 
 class Garment(scrapy.Item):
     item_code = scrapy.Field()
+    item_name = scrapy.Field()
     item_price = scrapy.Field()
     source_url = scrapy.Field()
     item_image_url = scrapy.Field()

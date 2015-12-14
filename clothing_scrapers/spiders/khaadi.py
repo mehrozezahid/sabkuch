@@ -15,12 +15,11 @@ class Khaadi(ClothingBaseSpider):
     rules = (
         Rule(SgmlLinkExtractor(deny=("view-all", "accessories", "unstitched"),
                                restrict_xpaths=(
-                                                "//ul[@class='categories-tree']/li[contains(@class,'level1')]/a",
+                                                "//ul[@class='categories-tree']//li[contains(@class,'level1')]/a",
                                                 "//*[@title='Next']"
                                                 ))),
-        # Rule(SgmlLinkExtractor(restrict_xpaths=("//*[@class='pages']//*[contains(@class,'next')]",
-        #                                         ))),
-
+        Rule(SgmlLinkExtractor(restrict_xpaths=("//*[@class='pages']//*[contains(@class,'next')]",
+                                                ))),
         Rule(SgmlLinkExtractor(restrict_xpaths=("//*[@class='product-name']/a",
                                                 )),
              callback="parse_product"),
@@ -31,7 +30,8 @@ class Khaadi(ClothingBaseSpider):
 
         item = Garment()
         item['source_url'] = response.url
-        item['item_category_name'] = self.get_category(sel)
+        item['item_name'] = self.get_item_name(sel)
+        item['item_category_name'] = self.get_category(sel, response)
         item['item_brand_id'] = self.brand_id
         item['item_code'] = self.get_item_code(sel)
         item['item_image_url'] = self.get_image_url(response)
@@ -39,9 +39,14 @@ class Khaadi(ClothingBaseSpider):
         item['item_description'] = self.get_description(sel)
         item['item_price'] = self.get_price(sel)
         item['item_is_available'] = True
-        item['item_is_on_sale'] = self.is_on_sale(sel)
-        item['item_sale_price'] = self.get_sale_price(sel)
+        item['item_is_on_sale'] = self.is_on_sale(sel, response)
+        item['item_sale_price'] = self.get_sale_price(sel, response)
         yield item
+
+    # for item name (if exists)
+    def get_item_name(self, sel):
+        item_name = sel.xpath(".//*[@class='product-name']/h1/text()").extract()
+        return item_name if item_name else None
 
     # for item code
     def get_item_code(self, sel):
@@ -53,10 +58,13 @@ class Khaadi(ClothingBaseSpider):
         return "".join(des)
 
     # category
-    def get_category(self, sel):
+    def get_category(self, sel, response):
         category = sel.xpath(".//*[contains(@class,'breadcrumbs')]//li/a/text()").extract()
         # these categories are demanded in this way by client
         if len(category) > 3:
+            referrer_url = response.request.headers.get('Referer', None)
+            if "sale" in referrer_url:
+                return category[1].strip()
             return category[2].strip()
         return category[-1].strip() if category else "uncategorized"
 
@@ -76,13 +84,13 @@ class Khaadi(ClothingBaseSpider):
                           "//*[@class='price']/text()").extract()[0].strip()
         return re.sub("PKR ", '', price)
 
-    def is_on_sale(self, sel):
+    def is_on_sale(self, sel, response):
         # on_sale = sel.xpath(".//*[@class='special-price']//*[@class='price']/text()").extract()
-        on_sale = self.get_category(sel)
+        on_sale = self.get_category(sel, response)
         return True if on_sale == "Sale" else False
 
-    def get_sale_price(self, sel):
-        if self.get_category(sel) == "Sale":
+    def get_sale_price(self, sel, response):
+        if self.get_category(sel, response) == "Sale":
             sale_price = sel.xpath(".//*[@class='special-price']//*[@class='price']/text()").extract()[0].strip()
             return re.sub("PKR ", '', sale_price) if sale_price else None
         return None

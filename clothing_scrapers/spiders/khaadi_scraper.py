@@ -16,7 +16,7 @@ class KhaadiSpider(ClothingBaseSpider):
     rules = (
         Rule(SgmlLinkExtractor(deny=("view-all", "accessories"),
                                restrict_xpaths=("//*[@id='nav']//li[position() < 4 ]",
-                                                "//ul[@class='categories-tree']/li[contains(@class,'level1')]/a",
+                                                "//ul[@class='categories-tree']//li[contains(@class,'level2')]/a",
                                                 "//*[@title='Next']"
                                                 ))),
         Rule(SgmlLinkExtractor(restrict_xpaths=("//*[contains(@class,'product-grid')]//*[@class='product-image']",
@@ -35,7 +35,7 @@ class KhaadiSpider(ClothingBaseSpider):
 
         item = Garment()
         item['source_url'] = response.url
-        item['item_category_name'] = self.get_category(sel)
+        item['item_category_name'] = self.get_category(sel, response)
         item['item_brand_id'] = self.brand_id
         item['item_code'] = self.get_item_code(sel)
         item['item_image_url'] = self.get_image_url(response)
@@ -55,10 +55,13 @@ class KhaadiSpider(ClothingBaseSpider):
         return " ".join(des)
 
     # category
-    def get_category(self, sel):
+    def get_category(self, sel, response):
         category = sel.xpath(".//*[contains(@class,'breadcrumbs')]//li/a/text()").extract()
         # these categories are demanded in this way by client
         if len(category) > 3:
+            referrer_url = response.request.headers.get('Referer', None)
+            if "sale" in referrer_url:
+                return category[1].strip()
             return category[2].strip()
         return category[-1].strip() if category else "uncategorized"
 

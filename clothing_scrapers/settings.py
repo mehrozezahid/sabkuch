@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from scrapy.settings.default_settings import DEPTH_PRIORITY
+
 datetime.now().strftime("%Y%m%d_%H%M%S")
 
 # Scrapy settings for clothing_scrapers project
@@ -85,6 +87,8 @@ DOWNLOAD_DELAY=5
 #HTTPCACHE_DIR='httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES=[]
 #HTTPCACHE_STORAGE='scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+DEPTH_PRIORITY=2
 
 FEED_EXPORTERS = {
     'csv': 'scrapy.contrib.exporter.CsvItemExporter',
