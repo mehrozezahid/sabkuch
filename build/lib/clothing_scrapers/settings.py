@@ -88,6 +88,8 @@ DOWNLOAD_DELAY=5
 #HTTPCACHE_IGNORE_HTTP_CODES=[]
 #HTTPCACHE_STORAGE='scrapy.extensions.httpcache.FilesystemCacheStorage'
 
+DEPTH_PRIORITY=2
+
 FEED_EXPORTERS = {
     'csv': 'scrapy.contrib.exporter.CsvItemExporter',
 }
