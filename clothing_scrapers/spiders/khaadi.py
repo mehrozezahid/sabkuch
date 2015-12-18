@@ -65,7 +65,6 @@ class Khaadi(ClothingBaseSpider):
         referrer_url = response.request.headers.get('Referer', None)
         # these categories are demanded in this way by client
         if "sale" in referrer_url:
-            arbisoft
             return category[1].strip()
         if len(category) > 3:
             return category[2].strip()

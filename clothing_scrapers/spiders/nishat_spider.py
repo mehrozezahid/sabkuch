@@ -62,10 +62,10 @@ class NishatSpider(ClothingBaseSpider):
         return response.urljoin(src[0].extract())
 
     def get_second_image_url(self, response):
-    	src = response.xpath(".//*[@class='cloud-zoom-gallery item']/@href").extract()
-    	if src:
-    		return response.urljoin(src[0])
-    	return None
+        src = response.xpath(".//*[@class='cloud-zoom-gallery item']/@href").extract()
+        if src:
+            return response.urljoin(src[0])
+        return None
 
     # price for product
     def get_price(self, sel):
