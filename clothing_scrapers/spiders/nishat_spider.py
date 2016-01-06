@@ -28,16 +28,16 @@ class NishatSpider(ClothingBaseSpider):
         item = Garment()
         item['source_url'] = response.url
         item['item_name'] = self.get_item_name(sel)
-        item['item_category_name'] = self.get_category(sel, response)
+        item['item_category_name'] = self.get_category(sel)
         item['item_brand_id'] = self.brand_id
         item['item_code'] = self.get_item_code(sel)
         item['item_image_url'] = self.get_image_url(response)
         item['item_secondary_image_urls'] = self.get_secondary_image_urls(response)
         item['item_description'] = self.get_description(sel)
         item['item_price'] = self.get_price(sel)
-        item['item_is_available'] = True
-        item['item_is_on_sale'] = self.is_on_sale(sel, response)
-        item['item_sale_price'] = self.get_sale_price(sel, response)
+        item['item_is_available'] = self.is_available(sel)
+        item['item_is_on_sale'] = self.is_on_sale(sel)
+        item['item_sale_price'] = self.get_sale_price(sel)
         yield item
 
     # for item name (if exists)
@@ -82,8 +82,19 @@ class NishatSpider(ClothingBaseSpider):
 
     # price for product
     def get_price(self, sel):
-        price = sel.xpath("//*[@id='product']//div[@class='price' or [contains(@style,'line-through')]//text()").extract()
-        # removing empty results
+        # price = sel.xpath("//*[@id='product']//div[@class='price' or [contains(@style,'line-through')]//text()").extract()
+        # # removing empty results
+        # price = filter(None, [s.strip() for s in price])
+        # if price:
+        #     return re.sub("Rs ", '', price[0])
+        # return "TBA"
+
+        price = sel.xpath("//*[@id='product']//*[@class='product-price']"
+                          "//*[contains(@style,'line-through;')]//text()").extract()
+        if price:
+            pass
+        else:
+            price = sel.xpath("//*[@id='product']//*[@class='product-price']//*[@id='dprice']/@value").extract()
         price = filter(None, [s.strip() for s in price])
         if price:
             return re.sub("Rs ", '', price[0])
