@@ -13,7 +13,7 @@ class SafinazSpider(ClothingBaseSpider):
     brand_id = 8
 
     rules = (
-        Rule(SgmlLinkExtractor(deny=("accessories", "Acoustics"),
+        Rule(SgmlLinkExtractor(deny=("accessories-2", "Acoustics", "unstitched-fabric"),
                                restrict_xpaths=("//*[@class='top-menu']/li/a",
                                                 )),
              callback="parse_items"),
@@ -36,14 +36,16 @@ class SafinazSpider(ClothingBaseSpider):
         item = Garment()
         item['item_is_on_sale'] = response.meta["on_sale"]
         item['source_url'] = response.url
+        item['item_name'] = None
         item['item_category_name'] = self.get_category(sel)
         item['item_brand_id'] = self.brand_id
         item['item_code'] = self.get_item_code(sel)
         item['item_image_url'] = self.get_image_url(response)
-        item['item_second_image_url'], item['item_third_image_url'] = self.get_secondary_image_urls(response)
+        item['item_secondary_image_urls'] = self.get_secondary_image_urls(response)
         item['item_description'] = self.get_description(sel)
         item['item_is_available'] = True
         item['item_price'] = self.get_price(sel)
+        item['item_sale_price'] = self.get_sale_price(sel)
         yield item
 
     # for item code
@@ -68,30 +70,28 @@ class SafinazSpider(ClothingBaseSpider):
         src = response.xpath("//*[@class='cloud-zoom-gallery']/@href").extract()
         if src:
             try:
-                if src[1]:
-                    try:
-                        if src[2]:
-                            return response.urljoin(src[1]), response.urljoin(src[2])
-                        else:
-                            return response.urljoin(src[1]), None
-                    except IndexError:
-                        return response.urljoin(src[1]), None
-                else:
-                    return None, None
+                return src[1:3]
             except IndexError:
-                return None, None
+                return src[1] if src[1] else None
         else:
-            return None, None
+            return None
 
     # price for product
     def get_price(self, sel):
-    	try:
-    		price = sel.xpath(".//*[@class='product-price']/span/text()").extract()[0].strip()
+        try:
+            price = sel.xpath(".//*[@class='product-price']/span/text()").extract()[0].strip()
         except IndexError:
-        	price = sel.xpath(".//*[@class='product-price discounted-price']/span/text()").extract()[0].strip()
+            price = sel.xpath(".//*[@class='non-discounted-price']/span/text()").extract()[0].strip()
 
         return re.sub("PKR. ", '', price)
 
     def is_on_sale(self, sel):
         on_sale = sel.xpath(".//*[@class='price old-price']").extract()
         return True if on_sale else False
+
+    def get_sale_price(self, sel):
+        try:
+            sale_price = sel.xpath(".//*[@class='product-price discounted-price']/span/text()").extract()[0].strip()
+        except IndexError:
+            return None
+        return re.sub("PKR. ", '', sale_price)

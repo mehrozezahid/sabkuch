@@ -14,8 +14,6 @@ class Garment(scrapy.Item):
     item_price = scrapy.Field()
     source_url = scrapy.Field()
     item_image_url = scrapy.Field()
-    item_second_image_url = scrapy.Field()
-    item_third_image_url = scrapy.Field()
     item_secondary_image_urls = scrapy.Field()
     item_brand_id = scrapy.Field()
     item_category_name = scrapy.Field()
