@@ -8,12 +8,13 @@ import re
 class NishatSpider(ClothingBaseSpider):
     name = "nishat"
     allowed_domains = ["nishatlinen.com"]
-    start_urls = ['http://nishatlinen.com/']
+    # start_urls = ['http://nishatlinen.com/']
+    start_urls = ['http://nishatlinen.com/Nisha-sale']
     brand_id = 2
 
     # first rule is modified as per client's demand using position()
     rules = (
-        Rule(SgmlLinkExtractor(restrict_xpaths=("//*[@id='header']//ul[contains(@class,'nav')]/li[position()<5]",
+        Rule(SgmlLinkExtractor(restrict_xpaths=("//*[@id='header']//ul[contains(@class,'nav')]/li[not(contains(.,'Home Linen'))]",
                                                 "//div[@class='links']//a"
                                                 ))),
         Rule(SgmlLinkExtractor(restrict_xpaths=("//div[@class='product']//a",
@@ -82,18 +83,9 @@ class NishatSpider(ClothingBaseSpider):
 
     # price for product
     def get_price(self, sel):
-        # price = sel.xpath("//*[@id='product']//div[@class='price' or [contains(@style,'line-through')]//text()").extract()
-        # # removing empty results
-        # price = filter(None, [s.strip() for s in price])
-        # if price:
-        #     return re.sub("Rs ", '', price[0])
-        # return "TBA"
-
         price = sel.xpath("//*[@id='product']//*[@class='product-price']"
                           "//*[contains(@style,'line-through;')]//text()").extract()
-        if price:
-            pass
-        else:
+        if not price:
             price = sel.xpath("//*[@id='product']//*[@class='product-price']//*[@id='dprice']/@value").extract()
         price = filter(None, [s.strip() for s in price])
         if price:

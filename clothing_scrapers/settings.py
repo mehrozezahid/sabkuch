@@ -92,4 +92,4 @@ FEED_EXPORTERS = {
     'csv': 'scrapy.contrib.exporter.CsvItemExporter',
 }
 FEED_FORMAT = 'csv'
-FEED_URI = "%(name)s_%(time)s.csv"
+FEED_URI = "output/%(name)s_%(time)s.csv"
