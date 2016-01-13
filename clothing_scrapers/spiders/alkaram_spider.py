@@ -61,6 +61,8 @@ class AlkaramSpider(ClothingBaseSpider):
     # category
     def get_category(self, sel):
         category = sel.xpath(".//tr[contains(.,'Category')]//td/text()").extract()
+        if not category:
+            category = sel.xpath(".//tr[contains(.,'Design')]//td/text()")
         return category[0].strip() if category else None
 
     # image url
@@ -70,7 +72,7 @@ class AlkaramSpider(ClothingBaseSpider):
 
     # urls of all other images
     def get_secondary_image_urls(self, response):
-        src = response.xpath(".//*[@class='cloud-zoom-gallery colorbox-group cboxElement']/@href").extract()
+        src = response.xpath("//*[contains(@class, 'cloud-zoom-gallery')]/@href").extract()
         if src:
             try:
                 return src[1:3]
