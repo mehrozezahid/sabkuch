@@ -14,7 +14,7 @@ class NishatSpider(ClothingBaseSpider):
 
     # first rule is modified as per client's demand using position()
     rules = (
-        Rule(SgmlLinkExtractor(restrict_xpaths=("//*[@id='header']//ul[contains(@class,'nav')]/li[not(contains(.,'Home Linen'))]",
+        Rule(SgmlLinkExtractor(restrict_xpaths=("//*[@id='header']//ul[contains(@class,'nav')]/li[not(contains(.,'Home Linen'))]//li/a",
                                                 "//div[@class='links']//a"
                                                 ))),
         Rule(SgmlLinkExtractor(restrict_xpaths=("//div[@class='product']//a",

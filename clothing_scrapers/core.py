@@ -1,6 +1,6 @@
 # import the spiders you want to run
 from spiders.alkaram_spider import AlkaramSpider
-from spiders.khaadi import Khaadi
+from spiders.khaadi_spider import Khaadi
 from spiders.nishat_spider import NishatSpider
 from spiders.safinaz_spider import SafinazSpider
 
