@@ -1,3 +1,0 @@
-[scrapy]
-settings = clothing_scrapers.settings
-
