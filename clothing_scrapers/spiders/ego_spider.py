@@ -59,14 +59,16 @@ class Ego(ClothingBaseSpider):
     # category
     def get_category(self, response):
         category = response.xpath(".//*[contains(@class,'breadcrumbs')]//li")
+        if len(category) > 3:
+            category = category.xpath("../li[position()=3]/a/text()").extract()[0]
         if len(category) > 2:
-            category = category.xpath("//li[position()=2]/a/text()").extract()[0]
+            category = category.xpath("../li[position()=2]/a/text()").extract()[0]
         else:
             referrer_url = response.request.headers.get('Referer', None)
             category = referrer_url.split('/')
             if "accessories" in referrer_url:
-                return category[2]
-            return category[1]
+                return category[4].capitalize().split('?')[0]
+            return category[3].capitalize().split('?')[0]
         return category
 
     # image url
@@ -95,9 +97,8 @@ class Ego(ClothingBaseSpider):
         return True if is_available else False
 
     def get_sale_price(self, sel, response):
-        sale_price = sel.xpath(".//*[@class='special-price']//*[@class='price']/text()").extract()[0].strip()
-        return re.sub("PKR ", '', sale_price) if sale_price else None
-        return None
+        sale_price = sel.xpath(".//*[@class='special-price']//*[@class='price']/text()")
+        return re.sub("PKR ", '', sale_price.extract()[0].strip()) if sale_price else None
 
     # takes list and removes duplicates
     def uniquify_list(self, seq, idfun=None):
